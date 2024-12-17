@@ -1,3 +1,1 @@
 map: maps/map1.png
-size: [100, 50], position: [1245.0, 832.5]
-size: [100, 50], position: [1320.0, 820.0]
