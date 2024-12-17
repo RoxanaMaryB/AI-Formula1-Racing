@@ -1,3 +1,4 @@
+import pygame
 
 
 class Car:
@@ -5,18 +6,26 @@ class Car:
     def __init__(self, sprite, size, position):
         self.sprite = sprite
         self.position = position
-        self.size = size
+        self.set_size(size)
 
         self.speed = 0
         self.distance = 0
         self.time = 0
         self.alive = True
+    
+    def set_size(self, size):
+        self.size = size
+        self.sprite_resized = pygame.transform.scale(self.sprite, (size[0], size[1]))
+        pass
+
+    def set_position(self, position):
+        self.position = position
 
     def is_alive(self):
         return self.alive
 
-    def draw(self):
-        pass
+    def draw(self, screen):
+        screen.blit(self.sprite_resized, self.position)
 
     def check_collision(self, map):
         pass
