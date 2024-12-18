@@ -1,5 +1,6 @@
 from game import *
 from car import *
+import numpy as np
 
 map_file = "maps/map1.png"
 car_file = "maps/car.png"
@@ -17,14 +18,15 @@ def loop(game):
     while True:
         game.update_screen()
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            car_position = np.add(car_position,
+                                  np.multiply(car_size[0] / 200, car.direction))
+            car.set_position(car_position)
         if keys[pygame.K_a]:
             car_position[0] -= car_size[0] / 200
             car.set_position(car_position)
         if keys[pygame.K_d]:
             car_position[0] += car_size[0] / 200
-            car.set_position(car_position)
-        if keys[pygame.K_w]:
-            car_position[1] -= car_size[1] / 200
             car.set_position(car_position)
         if keys[pygame.K_s]:
             car_position[1] += car_size[1] / 200

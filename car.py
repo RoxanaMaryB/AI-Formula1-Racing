@@ -1,5 +1,5 @@
 import pygame
-
+import math
 
 class Car:
 
@@ -34,6 +34,8 @@ class Car:
 
     def set_angle(self, angle):
         self.angle = angle
+        angle_rads = math.radians(angle)
+        self.direction = [math.cos(angle_rads), -math.sin(angle_rads)]
         self.rotate_sprite()
 
     def rotate_sprite(self):
