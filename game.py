@@ -5,6 +5,7 @@ class Game:
     def __init__(self, dimensions, map_file, car_file):
         pygame.init()
         self.screen = pygame.display.set_mode(dimensions, pygame.RESIZABLE)
+        self.virtual_screen = pygame.Surface([1920, 1080])
         self.map = pygame.image.load(map_file).convert()
 
         self.clock = pygame.time.Clock()
