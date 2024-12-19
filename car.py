@@ -1,5 +1,6 @@
 import pygame
 import math
+import numpy as np
 
 class Car:
 
@@ -63,6 +64,28 @@ class Car:
             case 0:
                 pass
         pass
+
+    def update_position_from_keyboard(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            self.set_position(np.add(self.position,
+                                np.multiply(self.size[0] / 50, self.direction)))
+        if keys[pygame.K_a]:
+            self.position[0] -= self.size[0] / 200
+        if keys[pygame.K_d]:
+            self.position[0] += self.size[0] / 200
+        if keys[pygame.K_s]:
+            self.position[1] += self.size[1] / 200
+
+        if keys[pygame.K_z]:
+            self.set_size([size / 1.01 for size in self.size])
+        if keys[pygame.K_x]:
+            self.set_size([size * 1.01 for size in self.size])
+
+        if keys[pygame.K_q]:
+            self.set_angle(self.angle + 0.5)
+        if keys[pygame.K_e]:
+            self.set_angle(self.angle - 0.5)
 
     def get_data(self):
         pass

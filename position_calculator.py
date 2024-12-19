@@ -1,6 +1,5 @@
 from game import *
 from car import *
-import numpy as np
 
 map_file = "maps/map1.png"
 car_file = "maps/car.png"
@@ -17,36 +16,12 @@ def loop(game):
 
     while True:
         game.update_screen()
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            car_position = np.add(car_position,
-                                  np.multiply(car_size[0] / 200, car.direction))
-            car.set_position(car_position)
-        if keys[pygame.K_a]:
-            car_position[0] -= car_size[0] / 200
-            car.set_position(car_position)
-        if keys[pygame.K_d]:
-            car_position[0] += car_size[0] / 200
-            car.set_position(car_position)
-        if keys[pygame.K_s]:
-            car_position[1] += car_size[1] / 200
-            car.set_position(car_position)
-
-        if keys[pygame.K_z]:
-            car_size = [size / 1.01 for size in car_size]
-            car.set_size(car_size)
-        if keys[pygame.K_x]:
-            car_size = [size * 1.01 for size in car_size]
-            car.set_size(car_size)
-
-        if keys[pygame.K_q]:
-            car.set_angle(car.angle + 0.5)
-        if keys[pygame.K_e]:
-            car.set_angle(car.angle - 0.5)
-
+        car.update_position_from_keyboard()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            if event.type == pygame.VIDEORESIZE:
+                game.update_dimensions([event.w, event.h]) 
             if event.type == pygame.KEYDOWN:
                 match event.key:
                     case pygame.K_ESCAPE:
@@ -54,6 +29,7 @@ def loop(game):
                     case pygame.K_l:
                         with open("car_position.txt", "a") as file:
                             file.write(f"size: {car_size}, position: {car_position}\n")
+
 
 def main():
     dimensions = [1920, 1080]
