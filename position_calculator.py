@@ -32,7 +32,7 @@ def loop(game):
 
 
 def main():
-    dimensions = [1920, 1080]
+    dimensions = [900, 500]
     game = Game(dimensions, map_file, car_file)
     loop(game)
 

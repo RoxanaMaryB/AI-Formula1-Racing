@@ -4,14 +4,13 @@ from car import *
 class Game:
     def __init__(self, dimensions, map_file, car_file):
         pygame.init()
-        self.update_dimensions(dimensions)
         self.screen = pygame.display.set_mode(dimensions, pygame.RESIZABLE)
-        self.virtual_screen = pygame.Surface(dimensions)
         self.map = pygame.image.load(map_file).convert()
 
         self.clock = pygame.time.Clock()
         self.car_sprite = pygame.image.load(car_file).convert()
         self.cars = []
+        self.update_dimensions(dimensions)
 
     def draw_map(self):
         for car in self.cars:
@@ -29,3 +28,4 @@ class Game:
 
     def update_dimensions(self, dimensions):
         self.dimensions = dimensions
+        self.update_screen()
