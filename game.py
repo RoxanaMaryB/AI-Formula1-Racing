@@ -29,6 +29,8 @@ class Game:
         scaled_surface = pygame.transform.scale(self.virtual_screen, self.dimensions)
         self.screen.blit(scaled_surface, (0, 0))
         pygame.display.flip()
+        self.clock.tick(60) # 60 FPS
+
 
     def update_dimensions(self, dimensions):
         self.dimensions = dimensions

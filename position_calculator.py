@@ -2,7 +2,7 @@ from game import *
 from model.ai_car import *
 from usercar import *
 
-map_file = "maps/map1.png"
+map_file = "maps/map2.png"
 car_file = "maps/car.png"
 log_file = "car_position.txt"
 

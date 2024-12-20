@@ -4,6 +4,8 @@ import numpy as np
 from game import *
 
 BORDER_COLOR = (255, 255, 255, 255)
+MIN_SPEED = 20
+MAX_SPEED = 50
 
 class AICar:
     
@@ -22,7 +24,7 @@ class AICar:
         self.alive = True
         self.center = [int(self.position[0]) + self.size[0] / 2, int(self.position[1]) + self.size[1] / 2]
         self.radars = []
-        self.speed = 12
+        self.speed = MIN_SPEED
 
     def start_drawing(self):
         if self.must_draw:
@@ -94,7 +96,9 @@ class AICar:
         self.radars.append([(x, y), dist])
 
     def update(self):
-        self.set_position(np.add(self.position, np.multiply((self.speed * self.size[0]) / 50, self.direction)))
+        self.set_angle(self.angle)
+        self.distance += self.speed
+        self.set_position(np.add(self.position, np.multiply((self.speed * self.size[0]) / 1000, self.direction)))
         self.center = [int(self.position[0]) + self.size[0] / 2, int(self.position[1]) + self.size[1] / 2]
         length = 0.5 * self.size[0]
         left_top = [self.center[0] + math.cos(math.radians(360 - (self.angle + 30))) * length, self.center[1] + math.sin(math.radians(360 - (self.angle + 30))) * length]
@@ -106,14 +110,16 @@ class AICar:
 
     def update_position(self, choice):
         if choice == 0:
-            self.angle += 10 # Left
+            self.angle += 2 # Left
         elif choice == 1:
-            self.angle -= 10 # Right
+            self.angle -= 2 # Right
         elif choice == 2:
-            if(self.speed - 2 >= 12):
+            if(self.speed - 2 >= MIN_SPEED):
                 self.speed -= 2 # Slow Down
         else:
-            self.speed += 2 # Speed Up
+            if(self.speed + 2 <= MAX_SPEED):
+                self.speed += 2 # Speed Up
+        self.update()
 
     def get_data(self):
         self.radars.clear()

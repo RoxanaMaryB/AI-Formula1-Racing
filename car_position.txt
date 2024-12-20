@@ -1,1 +1,1 @@
-map: maps/map1.png
+map: maps/map2.png
