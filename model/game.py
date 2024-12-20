@@ -30,3 +30,14 @@ class Game:
     def update_dimensions(self, dimensions):
         self.dimensions = dimensions
         self.update_screen()
+
+    def pixel_out_of_bounds(self, v):
+        BORDER_COLOR = (255, 255, 255, 255)
+
+        # Check if x and y are within the bounds of the map
+        if v[0] < 0 or v[0] >= 1920 or v[1] < 0 or v[1] >= 1080:
+            return True
+        if self.map.get_at((int(v[0]), int(v[1]))) == BORDER_COLOR:
+            return True
+
+        return False
