@@ -1,5 +1,6 @@
 from game import *
-from car import *
+from model.ai_car import *
+from usercar import *
 
 map_file = "maps/map1.png"
 car_file = "maps/car.png"
@@ -8,7 +9,7 @@ log_file = "car_position.txt"
 def loop(game):
     car_size = [100, 50]
     car_position = [1220, 820]
-    car = Car(game.car_sprite, car_size, car_position)
+    car = UserCar(game.car_sprite, car_size, car_position)
     car.start_drawing()
     game.add_car(car)
     with open(log_file, "w") as file:
