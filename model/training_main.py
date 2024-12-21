@@ -2,7 +2,7 @@ import neat
 from ai_car import *
 from game import *
 
-map_file = "maps/map2.png"
+map_file = "maps/map3.png"
 car_file = "maps/blue_car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
@@ -19,12 +19,12 @@ def run_simulation(genomes, config):
 
     # Empty Collections For Nets and Cars
     nets = []
-    
+
     # For All Genomes Passed Create A New Neural Network
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        game.add_car(AICar(game, True, game.car_sprite, [100, 50], position=[1220, 820]))
+        game.add_car(AICar(game, game.must_update, game.car_sprite, [100, 50], [1220, 820]))
 
     for _ in range (0, 2000):
 

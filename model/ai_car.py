@@ -5,6 +5,7 @@ from game import *
 
 MIN_SPEED = 30
 MAX_SPEED = 75
+STEERING_ANGLE = 5
 
 def cis(angle):
     angle = math.radians(angle)
@@ -12,17 +13,18 @@ def cis(angle):
 
 class AICar:
 
-    def __init__(self, game, must_draw = False, sprite = None, size = [100, 50], position = [1200, 925]):
+    def __init__(self, game, must_draw = False, sprite = None, size = [100, 50], start_position = [1200, 925]):
         self.game = game
-        self.must_draw = False
         self.sprite = sprite
+        self.must_draw = must_draw
+        self.start_position = start_position
 
         self.set_size(size)
-        self.set_angle(0)
-        self.set_position(position)
-        if must_draw:
-            self.start_drawing()
+        self.reset()
 
+    def reset(self):
+        self.set_angle(0)
+        self.set_position(self.start_position)
         self.distance = 0
         self.time = 0
         self.alive = True
@@ -31,51 +33,37 @@ class AICar:
         self.speed = MIN_SPEED
 
     def start_drawing(self):
-        if self.must_draw:
-            return
         self.must_draw = True
-        self.sprite_resized = pygame.transform.scale(self.sprite, self.size)
-        self.rotate_sprite()
 
     def stop_drawing(self):
         self.must_draw = False
 
     def set_size(self, size):
         self.size = size
-        if self.sprite is not None:
-            self.sprite_resized = pygame.transform.scale(self.sprite, self.size)
-        if self.must_draw:
-            self.rotate_sprite()
+
+    def set_position(self, position):
+        self.center = position
+        self.sensors = self.center + self.direction * self.size[0] / 2
 
     def set_angle(self, angle):
         self.angle = angle
         self.direction = cis(angle)
-        self.rotate_sprite()
-
-    def rotate_sprite(self):
-        if self.must_draw:
-            self.rotated_sprite = pygame.transform.rotate(self.sprite_resized, self.angle)
-            self.rotated_sprite.set_colorkey((0, 0, 0))
-            
-    def set_position(self, position):
-        self.position = np.array(position)
-        self.center = self.position + np.array(self.size) / 2
-        self.sensors = self.center + self.direction * self.size[0] / 2
 
     def draw(self, screen):
-        if self.must_draw:
-            rotated_rect = self.rotated_sprite.get_rect(center=self.sprite_resized.get_rect(topleft=self.position).center)
-            screen.blit(self.rotated_sprite, rotated_rect.topleft)
-            # screen.blit(self.rotated_sprite, self.position)
+        if not self.must_draw:
+            return
+        sprite_rotated = self.game.sprite_cache(self)
+        rotated_rect = sprite_rotated.get_rect(center = self.center)
+        screen.blit(sprite_rotated, rotated_rect)
 
-            RADAR_COLOR = (100, 200, 100)
-            for radar in self.radars:
-                position = radar[0]
-                pygame.draw.circle(screen, RADAR_COLOR, position, 5)
-                pygame.draw.line(screen, RADAR_COLOR, self.sensors, position, 3)
-            # CORNER_COLOR = (150, 50, 50)
-            # for corner in self.corners:
-            #     pygame.draw.circle(screen, CORNER_COLOR, corner, 10)
+        RADAR_COLOR = (100, 200, 100)
+        for radar in self.radars:
+            position = radar[0]
+            pygame.draw.circle(screen, RADAR_COLOR, position, 5)
+            pygame.draw.line(screen, RADAR_COLOR, self.sensors, position, 3)
+        # CORNER_COLOR = (150, 50, 50)
+        # for corner in self.corners:
+        #     pygame.draw.circle(screen, CORNER_COLOR, corner, 10)
 
     def is_alive(self):
         return self.alive
@@ -91,12 +79,12 @@ class AICar:
         radar_direction = cis(self.angle + degree)
 
         # Binary search is muuch faster
-        a, b = 0, 128
+        a, b = 0, 32
         while True:
             point = self.sensors + b * radar_direction
             if self.game.pixel_out_of_bounds(point):
                 break
-            a, b = b, b + 128
+            a, b = b, b + 32
 
         while a <= b:
             m = (a + b + 1) / 2
@@ -105,19 +93,16 @@ class AICar:
                 b = m - 1
             else:
                 a = m
-        point = self.sensors + a * radar_direction
 
         # while not self.game.pixel_out_of_bounds(point):
         #     point = point + radar_direction
 
-        # Calculate Distance To Border And Append To Radars List
-        dist = np.linalg.norm(point - self.sensors)
-        self.radars.append([point, dist])
+        self.radars.append([point, a])
 
     def update(self):
         self.distance += self.speed
         self.set_angle(self.angle)
-        self.set_position(self.position + (self.speed * self.size[0]) / 1000 * self.direction)
+        self.set_position(self.center + (self.speed * self.size[0]) / 1000 * self.direction)
 
         length = 0.5 * self.size[0]
         left_top     = self.center + cis(self.angle +  30) * length
@@ -129,9 +114,9 @@ class AICar:
 
     def update_position(self, choice):
         if choice == 0:
-            self.angle += 3 # Left
+            self.angle += STEERING_ANGLE # Left
         elif choice == 1:
-            self.angle -= 3 # Right
+            self.angle -= STEERING_ANGLE # Right
         elif choice == 2:
             if(self.speed - 2 >= MIN_SPEED):
                 self.speed -= 2 # Slow Down
@@ -151,4 +136,4 @@ class AICar:
         return return_values
 
     def get_reward(self):
-        return self.distance / 50
+        return (self.distance / 1000) * (self.alive + 1)
