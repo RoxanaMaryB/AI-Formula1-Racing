@@ -1,9 +1,10 @@
 import neat
+import pickle
 from ai_car import *
 from game import *
 
-map_file = "maps/map3.png"
-car_file = "maps/blue_car.png"
+map_file = "maps/finish_line3.png"
+car_file = "maps/blue_blue_car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
 
@@ -44,13 +45,10 @@ def run_simulation(genomes, config):
 
         game.update()
 
-
     for i, car in enumerate(game.cars):
         genomes[i][1].fitness = car.get_reward()
         if car.is_alive():
             pass
-
-
 
 def main():
     # Load Config
@@ -67,8 +65,17 @@ def main():
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
 
-    # Run Simulation For A Maximum of 250 Generations
-    population.run(run_simulation, 1000)
+    winner = None
+    try:
+        # Run Simulation For A Maximum of 250 Generations
+        winner = population.run(run_simulation, 25)
+    except KeyboardInterrupt:
+        print("Simulation interrupted by user.")
+    finally:
+        if winner:
+            with open("winner.pkl", "wb") as f:
+                pickle.dump((winner, config), f)
+            print("Winner saved to winner.pkl")
 
 if __name__ == "__main__":
     main()
