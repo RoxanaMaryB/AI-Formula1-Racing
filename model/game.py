@@ -10,13 +10,21 @@ class Game:
         self.map = pygame.image.load(map_file).convert()
         self.must_update = True
 
+        self.user_car = None
+
         self.clock = pygame.time.Clock()
         self.fps = 60
         self.car_sprite = pygame.image.load(car_file).convert()
         self.cars = []
         self.update_dimensions(dimensions)
-
+    
         self.hashtables = [{}, {}]
+
+    def add_user_car(self, car):
+        car.start_drawing()
+        self.user_car = car
+    
+
 
     def sprite_cache(self, car):
         sprite_resized = self.hashtables[0].setdefault(car.sprite, pygame.transform.scale(car.sprite, car.size))
@@ -41,10 +49,14 @@ class Game:
 
     def update(self):
         self.get_game_events()
-        if not self.must_update:
-            return
         self.virtual_screen.blit(self.map, (0, 0))
-        self.draw_map()
+        if self.user_car is not None:
+            self.user_car.update_position_from_keyboard()
+            self.user_car.must_draw = True
+            self.user_car.draw(self.virtual_screen)
+        if self.must_update:
+            self.draw_map()
+            
         scaled_surface = pygame.transform.scale(self.virtual_screen, self.dimensions)
         self.screen.blit(scaled_surface, (0, 0))
         pygame.display.flip()

@@ -13,6 +13,16 @@ game = Game(dimensions, map_file, car_file)
 # Keyboard inputs:                   O - speedup on/off
 # (use this for fast generating) ->  P - display on/off
 
+def init_game():
+    global game
+    user_car_sprite = pygame.image.load(user_car_file).convert()
+    car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
+    car.start_drawing()
+    game.add_user_car(car)
+
+    
+
+
 def run_simulation(genomes, config):
 
     global game
