@@ -3,11 +3,11 @@ import math
 import numpy as np
 
 class UserCar:
-    def __init__(self, sprite = None, size = [100, 50], position = [1220, 820]):
+    def __init__(self, sprite_path, size=[100, 50], position=[1220, 820]):
         self.must_draw = False
 
-        self.sprite = sprite
-        self.position = position
+        self.sprite = pygame.image.load(sprite_path)  # Load the sprite image
+        self.position = np.array(position, dtype=float)
         self.set_angle(0)
         self.set_size(size)
 
@@ -16,6 +16,10 @@ class UserCar:
         self.time = 0
         self.alive = True
 
+    def set_size(self, size):
+        self.size = size
+        self.sprite_resized = pygame.transform.scale(self.sprite, self.size)
+
     def start_drawing(self):
         if self.must_draw:
             return
@@ -23,71 +27,33 @@ class UserCar:
         self.sprite_resized = pygame.transform.scale(self.sprite, self.size)
         self.rotate_sprite()
 
-    def stop_drawing(self):
-        self.must_draw = False
-
-    def set_size(self, size):
-        self.size = size
-        self.sprite_resized = pygame.transform.scale(self.sprite, self.size)
-        if self.must_draw:
-            self.rotate_sprite()
-
     def set_angle(self, angle):
         self.angle = angle
-        angle_rads = math.radians(angle)
-        self.direction = [math.cos(angle_rads), -math.sin(angle_rads)]
+        self.direction = self.cis(angle)
         self.rotate_sprite()
 
     def rotate_sprite(self):
-        if self.must_draw:
-            self.rotated_sprite = pygame.transform.rotate(self.sprite_resized, self.angle)
+        if hasattr(self, 'sprite_resized'):
+            self.sprite_resized = pygame.transform.rotate(self.sprite_resized, self.angle)
 
-    def set_position(self, position):
-        self.position = position
+    def cis(self, angle):
+        angle = math.radians(angle)
+        return np.array([math.cos(angle), -math.sin(angle)])
 
-    def is_alive(self):
-        return self.alive
+    def update(self, player_input):
+        if player_input["steering"] == -1:
+            self.angle += 3  # Left
+        elif player_input["steering"] == 1:
+            self.angle -= 3  # Right
+
+        if player_input["acceleration"] == 1:
+            self.speed += 1  # Speed Up
+        elif player_input["acceleration"] == -1:
+            self.speed -= 1  # Slow Down
+
+        self.set_angle(self.angle)
+        self.position += self.speed * self.direction
 
     def draw(self, screen):
-        if self.must_draw:
-            screen.blit(self.rotated_sprite, self.position)
-
-    def check_collision(self, map):
-        pass
-
-    def update(self):
-        pass
-
-    def update_position(self, choice):
-        match (choice) :
-            case 0:
-                pass
-        pass
-
-    def update_position_from_keyboard(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            self.set_position(np.add(self.position,
-                                np.multiply(self.size[0] / 50, self.direction)))
-        if keys[pygame.K_a]:
-            self.position[0] -= self.size[0] / 200
-        if keys[pygame.K_d]:
-            self.position[0] += self.size[0] / 200
-        if keys[pygame.K_s]:
-            self.position[1] += self.size[1] / 200
-
-        if keys[pygame.K_z]:
-            self.set_size([size / 1.01 for size in self.size])
-        if keys[pygame.K_x]:
-            self.set_size([size * 1.01 for size in self.size])
-
-        if keys[pygame.K_q]:
-            self.set_angle(self.angle + 0.5)
-        if keys[pygame.K_e]:
-            self.set_angle(self.angle - 0.5)
-
-    def get_data(self):
-        pass
-
-    def get_reward(self):
-        return 0
+        rotated_rect = self.sprite_resized.get_rect(center=self.sprite_resized.get_rect(topleft=self.position).center)
+        screen.blit(self.sprite_resized, rotated_rect.topleft)

@@ -93,4 +93,8 @@ class Game:
         if self.map.get_at((int(v[0]), int(v[1]))) == BORDER_COLOR:
             return True
 
+<<<<<<< HEAD
         return False
+=======
+        return False
+>>>>>>> 8dee5b7b9a4907d03dfb3dbbcfbf5d7b0a5685b2
