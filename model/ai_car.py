@@ -19,9 +19,9 @@ class AICar:
 
         self.set_size(size)
         self.set_angle(0)
+        self.set_position(position)
         if must_draw:
             self.start_drawing()
-        self.set_position(position)
 
         self.distance = 0
         self.time = 0
@@ -73,9 +73,9 @@ class AICar:
                 position = radar[0]
                 pygame.draw.circle(screen, RADAR_COLOR, position, 5)
                 pygame.draw.line(screen, RADAR_COLOR, self.sensors, position, 3)
-            CORNER_COLOR = (150, 50, 50)
-            for corner in self.corners:
-                pygame.draw.circle(screen, CORNER_COLOR, corner, 10)
+            # CORNER_COLOR = (150, 50, 50)
+            # for corner in self.corners:
+            #     pygame.draw.circle(screen, CORNER_COLOR, corner, 10)
 
     def is_alive(self):
         return self.alive
@@ -90,9 +90,25 @@ class AICar:
     def check_radar(self, degree):
         radar_direction = cis(self.angle + degree)
 
-        point = self.sensors
-        while not self.game.pixel_out_of_bounds(point):
-            point = point + radar_direction
+        # Binary search is muuch faster
+        a, b = 0, 128
+        while True:
+            point = self.sensors + b * radar_direction
+            if self.game.pixel_out_of_bounds(point):
+                break
+            a, b = b, b + 128
+
+        while a <= b:
+            m = (a + b + 1) / 2
+            point = self.sensors + m * radar_direction
+            if self.game.pixel_out_of_bounds(point):
+                b = m - 1
+            else:
+                a = m
+        point = self.sensors + a * radar_direction
+
+        # while not self.game.pixel_out_of_bounds(point):
+        #     point = point + radar_direction
 
         # Calculate Distance To Border And Append To Radars List
         dist = np.linalg.norm(point - self.sensors)

@@ -1,4 +1,3 @@
-import sys
 import neat
 from ai_car import *
 from game import *
@@ -10,28 +9,12 @@ dimensions = [1000, 500]
 
 game = Game(dimensions, map_file, car_file)
 
-display = True
-def get_game_events():
-    global display
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit(0)
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:  # Exit on ESC key press
-                sys.exit(0)
-            if event.key == pygame.K_o:
-                display = False
-                for car in game.cars:
-                    car.stop_drawing()
-            if event.key == pygame.K_p:
-                display = True
-                for car in game.cars:
-                    car.start_drawing()
-
+# Keyboard inputs:                   O - speedup on/off
+# (use this for fast generating) ->  P - display on/off
 
 def run_simulation(genomes, config):
 
-    global game, display
+    global game
     game.cars.clear()
 
     # Empty Collections For Nets and Cars
@@ -43,8 +26,7 @@ def run_simulation(genomes, config):
         nets.append(net)
         game.add_car(AICar(game, True, game.car_sprite, [100, 50], position=[1220, 820]))
 
-    for _ in range (0, 50 * 100):
-        get_game_events()
+    for _ in range (0, 2000):
 
         # For Each Car Get The Acton It Takes
         still_alive = 0
@@ -59,9 +41,8 @@ def run_simulation(genomes, config):
 
         if still_alive == 0:
             break
-        
-        if display:
-            game.update_screen()
+
+        game.update()
 
 
     for i, car in enumerate(game.cars):
