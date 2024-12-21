@@ -3,8 +3,8 @@ import pickle
 from ai_car import *
 from game import *
 
-map_file = "maps/finish_line3.png"
-car_file = "maps/blue_blue_car.png"
+map_file = "maps/finish_line.png"
+car_file = "maps/blue_car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
 
@@ -14,13 +14,12 @@ game = Game(dimensions, map_file, car_file)
 # (use this for fast generating) ->  P - display on/off
 
 def init_game():
-    global game
-    user_car_sprite = pygame.image.load(user_car_file).convert()
-    car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
-    car.start_drawing()
-    game.add_user_car(car)
-
-    
+    pass
+    # global game
+    # user_car_sprite = pygame.image.load(user_car_file).convert()
+    # car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
+    # car.start_drawing()
+    # game.add_user_car(car)
 
 
 def run_simulation(genomes, config):
@@ -55,37 +54,43 @@ def run_simulation(genomes, config):
 
         game.update()
 
+
     for i, car in enumerate(game.cars):
         genomes[i][1].fitness = car.get_reward()
         if car.is_alive():
             pass
 
 def main():
-    # Load Config
     config_path = "model/config.txt"
     config = neat.config.Config(neat.DefaultGenome,
-                                neat.DefaultReproduction,
-                                neat.DefaultSpeciesSet,
-                                neat.DefaultStagnation,
-                                config_path)
+                                    neat.DefaultReproduction,
+                                    neat.DefaultSpeciesSet,
+                                    neat.DefaultStagnation,
+                                    config_path)
 
-    # Create Population And Add Reporters
-    population = neat.Population(config)
-    population.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    population.add_reporter(stats)
+    LOAD_FROM_PICKLE = True
+    if LOAD_FROM_PICKLE:
+        with open('population.pkl', "rb") as f:
+            population = pickle.load(f)
+    else:
+        # Create Population And Add Reporters
+        population = neat.Population(config)
+        population.add_reporter(neat.StdOutReporter(True))
+        stats = neat.StatisticsReporter()
+        population.add_reporter(stats)
 
-    winner = None
     try:
         # Run Simulation For A Maximum of 250 Generations
-        winner = population.run(run_simulation, 25)
+        population.run(run_simulation, 100)
     except KeyboardInterrupt:
         print("Simulation interrupted by user.")
+    except SystemExit:
+       with open('population.pkl', 'wb') as f:
+            pickle.dump(population, f)
     finally:
-        if winner:
-            with open("winner.pkl", "wb") as f:
-                pickle.dump((winner, config), f)
-            print("Winner saved to winner.pkl")
+        with open('population.pkl', 'wb') as f:
+            pickle.dump(population, f)
+
 
 if __name__ == "__main__":
     main()

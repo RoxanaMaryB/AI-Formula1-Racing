@@ -25,7 +25,6 @@ class Game:
         self.user_car = car
     
 
-
     def sprite_cache(self, car):
         sprite_resized = self.hashtables[0].setdefault(car.sprite, pygame.transform.scale(car.sprite, car.size))
         pair = (sprite_resized, car.angle)
@@ -49,6 +48,9 @@ class Game:
 
     def update(self):
         self.get_game_events()
+        if not self.must_update:
+            return
+
         self.virtual_screen.blit(self.map, (0, 0))
         if self.user_car is not None:
             self.user_car.update_position_from_keyboard()
@@ -56,7 +58,7 @@ class Game:
             self.user_car.draw(self.virtual_screen)
         if self.must_update:
             self.draw_map()
-            
+
         scaled_surface = pygame.transform.scale(self.virtual_screen, self.dimensions)
         self.screen.blit(scaled_surface, (0, 0))
         pygame.display.flip()
@@ -65,13 +67,13 @@ class Game:
     def get_game_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit(0)
+                exit(0)
             elif event.type == pygame.VIDEORESIZE:
                 # self.screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 self.dimensions = (event.w, event.h)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # Exit on ESC key press
-                    sys.exit(0)
+                    exit(0)
                 if event.key == pygame.K_o:
                     self.fps = 60 - self.fps
                 if event.key == pygame.K_p:
@@ -93,8 +95,4 @@ class Game:
         if self.map.get_at((int(v[0]), int(v[1]))) == BORDER_COLOR:
             return True
 
-<<<<<<< HEAD
         return False
-=======
-        return False
->>>>>>> 8dee5b7b9a4907d03dfb3dbbcfbf5d7b0a5685b2

@@ -15,12 +15,8 @@ class Game:
         
         self.clock = pygame.time.Clock()
         self.car_sprite = pygame.image.load(car_file).convert()
-<<<<<<< HEAD
-        self.cars = []
-=======
         self.user_car = None
         self.ai_car = None
->>>>>>> 8dee5b7b9a4907d03dfb3dbbcfbf5d7b0a5685b2
         self.update_dimensions(dimensions)
 
     def draw_map(self):
@@ -44,18 +40,11 @@ class Game:
         scaled_surface = pygame.transform.scale(self.virtual_screen, self.dimensions)
         self.screen.blit(scaled_surface, (0, 0))
         pygame.display.flip()
-<<<<<<< HEAD
-        self.clock.tick(60) # 60 FPS
-=======
         self.clock.tick(60)
->>>>>>> 8dee5b7b9a4907d03dfb3dbbcfbf5d7b0a5685b2
 
 
     def update_dimensions(self, dimensions):
         self.dimensions = dimensions
-<<<<<<< HEAD
-        self.update_screen()
-=======
         self.update()
 
     def get_game_events(self):
@@ -91,4 +80,3 @@ class Game:
             return True
 
         return False
->>>>>>> 8dee5b7b9a4907d03dfb3dbbcfbf5d7b0a5685b2
