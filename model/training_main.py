@@ -4,12 +4,12 @@ from ai_car import *
 from game import *
 
 map_file = "maps/map2.png"
-car_file = "maps/car.png"
+car_file = "maps/blue_car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
 
 game = Game(dimensions, map_file, car_file)
-    
+
 display = True
 def get_game_events():
     global display
@@ -21,8 +21,13 @@ def get_game_events():
                 sys.exit(0)
             if event.key == pygame.K_o:
                 display = False
+                for car in game.cars:
+                    car.stop_drawing()
             if event.key == pygame.K_p:
                 display = True
+                for car in game.cars:
+                    car.start_drawing()
+
 
 def run_simulation(genomes, config):
 

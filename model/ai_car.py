@@ -4,7 +4,7 @@ import numpy as np
 from game import *
 
 MIN_SPEED = 30
-MAX_SPEED = 60
+MAX_SPEED = 75
 
 def cis(angle):
     angle = math.radians(angle)
@@ -12,7 +12,7 @@ def cis(angle):
 
 class AICar:
 
-    def __init__(self, game, must_draw = False, sprite = None, size = [100, 50], position = [1201, 925]):
+    def __init__(self, game, must_draw = False, sprite = None, size = [100, 50], position = [1200, 925]):
         self.game = game
         self.must_draw = False
         self.sprite = sprite
@@ -55,23 +55,30 @@ class AICar:
     def rotate_sprite(self):
         if self.must_draw:
             self.rotated_sprite = pygame.transform.rotate(self.sprite_resized, self.angle)
-
+            self.rotated_sprite.set_colorkey((0, 0, 0))
+            
     def set_position(self, position):
         self.position = np.array(position)
         self.center = self.position + np.array(self.size) / 2
         self.sensors = self.center + self.direction * self.size[0] / 2
 
-    def is_alive(self):
-        return self.alive
-
     def draw(self, screen):
         if self.must_draw:
-            screen.blit(self.rotated_sprite, self.position)
+            rotated_rect = self.rotated_sprite.get_rect(center=self.sprite_resized.get_rect(topleft=self.position).center)
+            screen.blit(self.rotated_sprite, rotated_rect.topleft)
+            # screen.blit(self.rotated_sprite, self.position)
+
+            RADAR_COLOR = (100, 200, 100)
             for radar in self.radars:
-                RADAR_COLOR = (100, 200, 100)
                 position = radar[0]
                 pygame.draw.circle(screen, RADAR_COLOR, position, 5)
                 pygame.draw.line(screen, RADAR_COLOR, self.sensors, position, 3)
+            CORNER_COLOR = (150, 50, 50)
+            for corner in self.corners:
+                pygame.draw.circle(screen, CORNER_COLOR, corner, 10)
+
+    def is_alive(self):
+        return self.alive
 
     def check_collision(self):
         self.alive = True
@@ -113,8 +120,8 @@ class AICar:
             if(self.speed - 2 >= MIN_SPEED):
                 self.speed -= 2 # Slow Down
         else:
-            if(self.speed + 2 <= MAX_SPEED):
-                self.speed += 2 # Speed Up
+            if(self.speed + 1 <= MAX_SPEED):
+                self.speed += 1 # Speed Up
         self.update()
 
     def get_data(self):
