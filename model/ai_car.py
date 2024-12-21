@@ -125,6 +125,22 @@ class AICar:
                 self.speed += 1 # Speed Up
         self.update()
 
+    def update_position_from_keyboard(self):
+        print("maris")
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                print("marus")
+                if event.key == pygame.K_w:
+                    self.update_position(3)
+                elif event.key == pygame.K_a:
+                    self.update_position(0)
+                elif event.key == pygame.K_d:
+                    self.update_position(1)
+                elif event.key == pygame.K_s:
+                    self.update_position(2)
+            return
+        self.update()
+    
     def get_data(self):
         self.radars.clear()
         for d in range(-120, 120 + 1, 30):

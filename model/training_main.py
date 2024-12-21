@@ -2,8 +2,9 @@ import neat
 from ai_car import *
 from game import *
 
-map_file = "maps/map3.png"
+map_file = "maps/map2.png"
 car_file = "maps/blue_car.png"
+user_car_file = "maps/car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
 
@@ -11,6 +12,16 @@ game = Game(dimensions, map_file, car_file)
 
 # Keyboard inputs:                   O - speedup on/off
 # (use this for fast generating) ->  P - display on/off
+
+def init_game():
+    global game
+    user_car_sprite = pygame.image.load(user_car_file).convert()
+    car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
+    car.start_drawing()
+    game.add_user_car(car)
+
+    
+
 
 def run_simulation(genomes, config):
 
@@ -51,7 +62,6 @@ def run_simulation(genomes, config):
             pass
 
 
-
 def main():
     # Load Config
     config_path = "model/config.txt"
@@ -67,6 +77,7 @@ def main():
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
 
+    init_game()
     # Run Simulation For A Maximum of 250 Generations
     population.run(run_simulation, 1000)
 
