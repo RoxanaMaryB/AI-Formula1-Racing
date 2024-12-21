@@ -1,6 +1,5 @@
-from model.game import *
+from model.ai_car import *
 from usercar import *
-from position_calculator import *
 import pickle
 import neat
 import pygame
@@ -9,13 +8,20 @@ import pygame
 
 def main():
     dimensions = [900, 500]
+    map_file = "maps/finish_line.png"
+    car_file = "maps/blue_car.png"
+    screen = pygame.display.set_mode(dimensions, pygame.RESIZABLE)
     game = Game(dimensions, map_file, car_file)
-    with open('most_sukar_genome.pfkl', "rb") as f:
+    font = pygame.font.SysFont(None, 55)
+    with open('winner.pkl', "rb") as f:
         best_genome, config = pickle.load(f)
     net = neat.nn.FeedForwardNetwork.create(best_genome, config)
     initial_position = ([1220, 820], [100, 50])
-    player_car = UserCar(initial_position)
-    ai_car = AICar(initial_position, net)
+    player_car = UserCar(car_file, initial_position[1], initial_position[0])
+    ai_car = AICar(game, must_draw=True, sprite=pygame.image.load(car_file), size=initial_position[1], position=initial_position[0])
+
+    game.add_user_car(player_car)
+    game.add_ai_car(ai_car)
 
     running = True
     while running:
@@ -33,18 +39,36 @@ def main():
                 elif event.key == pygame.K_DOWN:
                     player_input["acceleration"] = -1
 
-    ai_inputs = ai_car.get_data()
-    player_car.update(player_input)
-    ai_car.update(net.activate(ai_inputs))
+        ai_inputs = ai_car.get_data()
+        actions = net.activate(ai_inputs)
+        choice = actions.index(max(actions))
 
-    game.update_screen()
-    player_car.draw()
-    ai_car.draw()
-    pygame.display.update()
+        player_car.update(player_input)
+        ai_car.update_position(choice)
 
-    pygame.time.delay(16)
-    loop(game)
-    
+        if game.pixel_out_of_bounds(player_car.position):
+            print("Player car out of bounds")
+            winner = "AI Car Wins!"
+            running = False
+        elif game.pixel_out_of_bounds(ai_car.position):
+            print("AI car out of bounds")
+            winner = "User Car Wins!"
+            running = False
+
+        screen.fill((0, 0, 0))
+        game.update()
+        pygame.display.update()
+
+        pygame.time.delay(16)
+
+    if winner:
+        screen.fill((0, 0, 0))
+        text = font.render(winner, True, (255, 255, 255))
+        screen.blit(text, (dimensions[0] // 2 - text.get_width() // 2, dimensions[1] // 2 - text.get_height() // 2))
+        pygame.display.update()
+        pygame.time.wait(3000)
+
+    pygame.quit()
 
 if __name__ == "__main__":
     main()

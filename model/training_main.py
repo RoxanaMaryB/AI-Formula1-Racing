@@ -1,72 +1,54 @@
 import neat
+import pickle
 from ai_car import *
-import sys
-import neat
 from game import *
 
-map_file = "maps/map.png"
-car_file = "maps/car.png"
+map_file = "maps/finish_line.png"
+car_file = "maps/blue_car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
-current_generation = 0
+
+game = Game(dimensions, map_file, car_file)
+
+# Keyboard inputs:                   O - speedup on/off
+# (use this for fast generating) ->  P - display on/off
 
 def run_simulation(genomes, config):
-    
+
+    global game
+    game.cars.clear()
+
     # Empty Collections For Nets and Cars
     nets = []
-    cars = []
-
-    game = Game(dimensions, map_file, car_file)
 
     # For All Genomes Passed Create A New Neural Network
-    for i, g in genomes:
+    for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        g.fitness = 0
-        game.add_car(AICar(game, True, game.car_sprite, [100, 50], [1201, 925]))
+        game.add_car(AICar(game, game.must_update, game.car_sprite, [100, 50], [1220, 820]))
 
-    global current_generation
-    current_generation += 1
-
-    # Simple Counter To Roughly Limit Time (Not Good Practice)
-    counter = 0
-
-    while True:
-        # Exit On Quit Event
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit(0)
+    for _ in range (0, 2000):
 
         # For Each Car Get The Acton It Takes
-        for i, car in enumerate(game.cars):
-            output = nets[i].activate(car.get_data())
-            choice = output.index(max(output))
-            
-        
-        # Check If Car Is Still Alive
-        # Increase Fitness If Yes And Break Loop If Not
         still_alive = 0
         for i, car in enumerate(game.cars):
             if car.is_alive():
-                still_alive += 1
+                output = nets[i].activate(car.get_data())
+                choice = output.index(max(output))
                 car.update_position(choice)
-                car.update()
-                genomes[i][1].fitness += car.get_reward()
+                still_alive += 1
+            else:
+                car.stop_drawing()
 
         if still_alive == 0:
             break
 
-        counter += 1
-        if counter == 30 * 40: # Stop After About 20 Seconds
-            break
+        game.update()
 
-        # Update Screen
-        game.update_screen()
-
-        # pygame.display.flip()
-        game.clock.tick(60) # 60 FPS
-
-
+    for i, car in enumerate(game.cars):
+        genomes[i][1].fitness = car.get_reward()
+        if car.is_alive():
+            pass
 
 def main():
     # Load Config
@@ -83,8 +65,17 @@ def main():
     stats = neat.StatisticsReporter()
     population.add_reporter(stats)
 
-    # Run Simulation For A Maximum of 250 Generations
-    population.run(run_simulation, 1000)
+    winner = None
+    try:
+        # Run Simulation For A Maximum of 250 Generations
+        winner = population.run(run_simulation, 25)
+    except KeyboardInterrupt:
+        print("Simulation interrupted by user.")
+    finally:
+        if winner:
+            with open("winner.pkl", "wb") as f:
+                pickle.dump((winner, config), f)
+            print("Winner saved to winner.pkl")
 
 if __name__ == "__main__":
     main()
