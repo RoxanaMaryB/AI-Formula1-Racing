@@ -1,4 +1,3 @@
-import sys
 import pygame
 from ai_car import *
 
@@ -17,13 +16,22 @@ class Game:
         self.car_sprite = pygame.image.load(car_file).convert()
         self.cars = []
         self.update_dimensions(dimensions)
-    
+
         self.hashtables = [{}, {}]
+        self.display_idx = None
 
     def add_user_car(self, car):
         car.start_drawing()
+        car.speed = 1
         self.user_car = car
-    
+
+    def set_display_idx(self, idx):
+        self.display_idx = idx
+
+    def must_update_depending_on_idx(self, idx):
+        if self.display_idx is None:
+            return True
+        return idx in self.display_idx
 
     def sprite_cache(self, car):
         sprite_resized = self.hashtables[0].setdefault(car.sprite, pygame.transform.scale(car.sprite, car.size))
@@ -50,10 +58,11 @@ class Game:
         self.get_game_events()
         if not self.must_update:
             return
+        if self.user_car is not None:
+            self.user_car.update()
 
         self.virtual_screen.blit(self.map, (0, 0))
         if self.user_car is not None:
-            self.user_car.update_position_from_keyboard()
             self.user_car.must_draw = True
             self.user_car.draw(self.virtual_screen)
         if self.must_update:
@@ -74,9 +83,9 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # Exit on ESC key press
                     exit(0)
-                if event.key == pygame.K_o:
+                elif event.key == pygame.K_o:
                     self.fps = 60 - self.fps
-                if event.key == pygame.K_p:
+                elif event.key == pygame.K_p:
                     if not self.must_update:
                         self.must_update = True
                         for car in self.cars:
@@ -85,6 +94,16 @@ class Game:
                         self.must_update = False
                         for car in self.cars:
                             car.stop_drawing()
+        # User Car
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            self.user_car.update_position(4)
+        elif keys[pygame.K_a]:
+            self.user_car.update_position(1)
+        elif keys[pygame.K_d]:
+            self.user_car.update_position(2)
+        elif keys[pygame.K_s]:
+            self.user_car.update_position(3)
 
     def pixel_out_of_bounds(self, v):
         BORDER_COLOR = (255, 255, 255)

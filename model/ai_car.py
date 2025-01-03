@@ -18,15 +18,16 @@ class AICar:
         self.sprite = sprite
         self.must_draw = must_draw
         self.start_position = start_position
-
-        self.set_size(size)
-        self.set_angle(0)
-        self.set_position(start_position)
-        if must_draw:
-            self.start_drawing()
+        self.size = size
+        self.start_position = start_position
         self.reset()
 
     def reset(self):
+        self.set_size(self.size)
+        self.set_angle(0)
+        self.set_position(self.start_position)
+        if self.must_draw:
+            self.start_drawing()
         self.distance = 0
         self.time = 0
         self.alive = True
@@ -133,16 +134,17 @@ class AICar:
 
     def update_position(self, choice):
         if choice == 0:
-            self.angle += 3 # Left
+            pass
         elif choice == 1:
-            self.angle -= 3 # Right
+            self.angle += 3 # Left
         elif choice == 2:
+            self.angle -= 3 # Right
+        elif choice == 3:
             if(self.speed - 2 >= MIN_SPEED):
                 self.speed -= 2 # Slow Down
-        else:
+        elif choice == 4:
             if(self.speed + 1 <= MAX_SPEED):
                 self.speed += 1 # Speed Up
-        self.update()
 
     def check_green_color(self):
         return False
@@ -150,22 +152,6 @@ class AICar:
         for point in self.corners:
             if self.game.map.get_at((int(point[0]), int(point[1]))) == GREEN_COLOR:
                 return True
-
-    def update_position_from_keyboard(self):
-        print("key")
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                print("board")
-                if event.key == pygame.K_w:
-                    self.update_position(3)
-                elif event.key == pygame.K_a:
-                    self.update_position(0)
-                elif event.key == pygame.K_d:
-                    self.update_position(1)
-                elif event.key == pygame.K_s:
-                    self.update_position(2)
-            return
-        self.update()
 
     def get_data(self):
         self.radars.clear()
