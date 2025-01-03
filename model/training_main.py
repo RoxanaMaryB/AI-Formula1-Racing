@@ -3,7 +3,7 @@ import pickle
 from ai_car import *
 from game import *
 
-map_file = "maps/finish_line.png"
+map_file = "maps/finish_line3.png"
 car_file = "maps/blue_car.png"
 user_car_file = "maps/car.png"
 log_file = "car_position.txt"
@@ -61,7 +61,7 @@ def run_simulation(genomes, config):
         game.update()
 
     if game.user_car is not None:
-        game.user_car.reset()
+        game.user_car.reset_user()
     vals = []
     for i, car in enumerate(game.cars):
         reward = car.get_reward()

@@ -169,6 +169,7 @@ class AICar:
         for point in self.corners:
             if self.game.map.get_at((int(point[0]), int(point[1]))) == GREEN_COLOR:
                 return True
+        return False
 
     def get_data(self):
         self.radars.clear()
