@@ -39,6 +39,23 @@ class AICar:
         self.total_speed = 0
         self.update_count = 0
 
+    def reset_user(self):
+        self.set_size(self.size)
+        self.set_angle(0)
+        self.set_position(self.start_position)
+        if self.must_draw:
+            self.start_drawing()
+        self.distance = 0
+        self.time = 0
+        self.alive = True
+        self.won = False
+        self.radars = []
+        self.sensors = np.array([0, 0])
+        self.speed = 0
+        self.reward = 0
+        self.total_speed = 0
+        self.update_count = 0
+
     def start_drawing(self):
         self.must_draw = True
 
@@ -91,13 +108,13 @@ class AICar:
     def check_radar(self, degree):
         radar_direction = cis(self.angle + degree)
 
-        # Binary search is muuch faster
-        a, b = 0, 128
+        # Binary search is much faster
+        a, b = 0, 32
         while True:
             point = self.sensors + b * radar_direction
             if self.game.pixel_out_of_bounds(point):
                 break
-            a, b = b, b + 128
+            a, b = b, b + 32
 
         while a <= b:
             m = (a + b + 1) / 2
@@ -147,7 +164,7 @@ class AICar:
                 self.speed += 1 # Speed Up
 
     def check_green_color(self):
-        return False
+        # return False
         GREEN_COLOR = (34, 177, 76, 255)  # Define the green color
         for point in self.corners:
             if self.game.map.get_at((int(point[0]), int(point[1]))) == GREEN_COLOR:

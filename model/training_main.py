@@ -7,6 +7,8 @@ map_file = "maps/finish_line.png"
 car_file = "maps/blue_car.png"
 user_car_file = "maps/car.png"
 log_file = "car_position.txt"
+map_name = map_file.split("/")[-1].split(".")[0]
+save_file = "saved/" + map_name + ".pkl"
 dimensions = [1000, 500]
 
 game = None
@@ -79,8 +81,16 @@ def main():
 
     LOAD_FROM_PICKLE = True
     if LOAD_FROM_PICKLE:
-        with open('population.pkl', "rb") as f:
-            population = pickle.load(f)
+        try:
+            with open(save_file, "rb") as f:
+                population = pickle.load(f)
+        except FileNotFoundError:
+            print(f"{save_file} not found. Creating new population.")
+            population = neat.Population(config)
+            population.add_reporter(neat.StdOutReporter(True))
+            stats = neat.StatisticsReporter()
+            population.add_reporter(stats)
+
     else:
         # Create Population And Add Reporters
         population = neat.Population(config)
@@ -88,6 +98,7 @@ def main():
         stats = neat.StatisticsReporter()
         population.add_reporter(stats)
 
+       
     init_game()
     try:
         # Run Simulation For A Maximum of 250 Generations
@@ -95,10 +106,10 @@ def main():
     except KeyboardInterrupt:
         print("Simulation interrupted by user.")
     except SystemExit:
-       with open('population.pkl', 'wb') as f:
+       with open(save_file, 'wb') as f:
             pickle.dump(population, f)
     finally:
-        with open('population.pkl', 'wb') as f:
+        with open(save_file, 'wb') as f:
             pickle.dump(population, f)
 
 
