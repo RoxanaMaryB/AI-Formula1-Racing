@@ -4,6 +4,9 @@
  * Militaru Ionut Marius
  * Baranga Roxana 
 
+
+## Project description
+
 This project is an AI-based Formula 1 racing simulation using NEAT
 (NeuroEvolution of Augmenting Topologies) and Pygame. The AI controls 
 multiple cars to navigate a racing track, and a user-controlled car can 
