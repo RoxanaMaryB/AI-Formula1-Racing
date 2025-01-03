@@ -5,22 +5,22 @@ from game import *
 
 map_file = "maps/finish_line.png"
 car_file = "maps/blue_car.png"
+user_car_file = "maps/car.png"
 log_file = "car_position.txt"
 dimensions = [1000, 500]
 
-game = Game(dimensions, map_file, car_file)
+game = None
 
 # Keyboard inputs:                   O - speedup on/off
 # (use this for fast generating) ->  P - display on/off
 
 def init_game():
-    pass
-    # global game
-    # user_car_sprite = pygame.image.load(user_car_file).convert()
-    # car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
-    # car.start_drawing()
-    # game.add_user_car(car)
-
+    global game
+    game = Game(dimensions, map_file, car_file)
+    # return
+    user_car_sprite = pygame.image.load(user_car_file).convert()
+    car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
+    game.add_user_car(car)
 
 def run_simulation(genomes, config):
 
@@ -31,10 +31,13 @@ def run_simulation(genomes, config):
     nets = []
 
     # For All Genomes Passed Create A New Neural Network
+    i = 0
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        game.add_car(AICar(game, game.must_update, game.car_sprite, [100, 50], [1220, 820]))
+        car = AICar(game, game.must_update_depending_on_idx(i), game.car_sprite, [100, 50], [1220, 820])
+        game.add_car(car)
+        i += 1
 
     for _ in range (0, 2000):
 
@@ -44,7 +47,8 @@ def run_simulation(genomes, config):
             if car.is_alive():
                 output = nets[i].activate(car.get_data())
                 choice = output.index(max(output))
-                car.update_position(choice)
+                car.update_position(choice + 1)
+                car.update()
                 still_alive += 1
             else:
                 car.stop_drawing()
@@ -54,11 +58,16 @@ def run_simulation(genomes, config):
 
         game.update()
 
-
+    if game.user_car is not None:
+        game.user_car.reset()
+    vals = []
     for i, car in enumerate(game.cars):
-        genomes[i][1].fitness = car.get_reward()
-        if car.is_alive():
-            pass
+        reward = car.get_reward()
+        genomes[i][1].fitness = reward
+        vals.append((i, reward))
+
+    vals.sort(key=lambda x: x[1], reverse=True)
+    game.set_display_idx([val[0] for val in vals[:5]])
 
 def main():
     config_path = "model/config.txt"
@@ -79,9 +88,10 @@ def main():
         stats = neat.StatisticsReporter()
         population.add_reporter(stats)
 
+    init_game()
     try:
         # Run Simulation For A Maximum of 250 Generations
-        population.run(run_simulation, 100)
+        population.run(run_simulation, 250)
     except KeyboardInterrupt:
         print("Simulation interrupted by user.")
     except SystemExit:
