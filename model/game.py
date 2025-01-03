@@ -60,11 +60,18 @@ class Game:
             return
         if self.user_car is not None:
             self.user_car.update()
+            if self.user_car.check_collision() or self.user_car.check_green_color():
+                print("User car get the finish line")
+                self.user_car.reset_user()
+
 
         self.virtual_screen.blit(self.map, (0, 0))
         if self.user_car is not None:
-            self.user_car.must_draw = True
-            self.user_car.draw(self.virtual_screen)
+            if self.user_car.is_alive():
+                self.user_car.must_draw = True
+                self.user_car.draw(self.virtual_screen)
+            else:
+                self.user_car.reset_user()
         if self.must_update:
             self.draw_map()
 
