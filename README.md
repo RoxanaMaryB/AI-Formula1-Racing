@@ -1,7 +1,7 @@
 # AI Formula 1 Racing
 ### Team
- * Popa Filip Andrei
- * Militaru Ionut Marius
+ * Popa Filip-Andrei
+ * Militaru Ionut-Marius
  * Baranga Roxana 
 
 
