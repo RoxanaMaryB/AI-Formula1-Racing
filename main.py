@@ -16,9 +16,9 @@ def main():
     with open('winner.pkl', "rb") as f:
         best_genome, config = pickle.load(f)
     net = neat.nn.FeedForwardNetwork.create(best_genome, config)
-    initial_position = ([1220, 820], [100, 50])
-    player_car = UserCar(car_file, initial_position[1], initial_position[0])
-    ai_car = AICar(game, must_draw=True, sprite=pygame.image.load(car_file), size=initial_position[1], position=initial_position[0])
+    # initial_position = ([1220, 820], [100, 50])
+    player_car = UserCar(car_file)
+    ai_car = AICar(game, must_draw=True, sprite=pygame.image.load(car_file))
 
     game.add_user_car(player_car)
     game.add_ai_car(ai_car)

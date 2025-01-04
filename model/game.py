@@ -1,5 +1,5 @@
 import pygame
-from ai_car import *
+from model.ai_car import *
 
 class Game:
     def __init__(self, dimensions, map_file, car_file):
@@ -43,10 +43,6 @@ class Game:
             return sprite_rotated
         return self.hashtables[1][pair]
 
-    def draw_map(self):
-        for car in self.cars:
-            car.draw(self.virtual_screen)
-
     def add_car(self, car):
         self.cars.append(car)
 
@@ -54,16 +50,9 @@ class Game:
         self.dimensions = dimensions
         self.update()
 
-    def update(self):
-        self.get_game_events()
+    def draw(self):
         if not self.must_update:
             return
-        if self.user_car is not None:
-            self.user_car.update()
-            if self.user_car.check_collision() or self.user_car.check_green_color():
-                print("User car get the finish line")
-                self.user_car.reset_user()
-
 
         self.virtual_screen.blit(self.map, (0, 0))
         if self.user_car is not None:
@@ -71,14 +60,35 @@ class Game:
                 self.user_car.must_draw = True
                 self.user_car.draw(self.virtual_screen)
             else:
-                self.user_car.reset_user()
+                self.user_car.reset()
+
         if self.must_update:
-            self.draw_map()
+            for car in self.cars:
+                car.draw(self.virtual_screen)
 
         scaled_surface = pygame.transform.scale(self.virtual_screen, self.dimensions)
         self.screen.blit(scaled_surface, (0, 0))
         pygame.display.flip()
         self.clock.tick(self.fps)
+
+    def update(self):
+        self.get_game_events()
+
+        still_alive = 0
+        for car in self.cars:
+            if car.is_alive():
+                car.update()
+                still_alive += 1
+            else:
+                car.stop_drawing()
+
+        if self.user_car is not None:
+            if self.user_car.is_alive():
+                self.user_car.update()
+        
+        self.draw()
+        return still_alive > 0
+
 
     def get_game_events(self):
         for event in pygame.event.get():
@@ -101,16 +111,25 @@ class Game:
                         self.must_update = False
                         for car in self.cars:
                             car.stop_drawing()
+
         # User Car
+        if self.user_car is None:
+            return
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            self.user_car.update_position_from_choice(1)
+        if keys[pygame.K_d]:
+            self.user_car.update_position_from_choice(2)
+        if keys[pygame.K_s]:
+            self.user_car.update_position_from_choice(3)
         if keys[pygame.K_w]:
-            self.user_car.update_position(4)
-        elif keys[pygame.K_a]:
-            self.user_car.update_position(1)
-        elif keys[pygame.K_d]:
-            self.user_car.update_position(2)
-        elif keys[pygame.K_s]:
-            self.user_car.update_position(3)
+            self.user_car.update_position_from_choice(4)
+        self.user_car.update()
+
+        if self.user_car.check_green_color():
+            print("User car got to the finish line")
+            self.user_car.reset()
+
 
     def pixel_out_of_bounds(self, v):
         BORDER_COLOR = (255, 255, 255)

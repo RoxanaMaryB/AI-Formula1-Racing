@@ -1,23 +1,23 @@
-from game import *
+from model.game import *
 from model.ai_car import *
-from usercar import *
+# from usercar import *
 
-map_file = "maps/map2.png"
-car_file = "maps/car.png"
-log_file = "car_position.txt"
+map_file = "maps/map2/map.png"
+car_file = "cars/red_car.png"
+log_file = "position_calculator/car_position.txt"
 
 def loop(game):
     car_size = [100, 50]
     car_position = [1220, 820]
-    car = UserCar(game.car_sprite, car_size, car_position)
+    car = AICar(game, must_draw=True, size=car_size, start_position=car_position)
     car.start_drawing()
     game.add_car(car)
     with open(log_file, "w") as file:
         file.write(f"map: {map_file}\n")
 
     while True:
-        game.update_screen()
-        car.update_position_from_keyboard()
+        game.update()
+        # car.update_position_from_keyboard()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()

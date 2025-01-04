@@ -1,67 +1,56 @@
 import neat
 import pickle
-from ai_car import *
-from game import *
+from model.ai_car import *
+from model.game import *
 
-map_file = "maps/finish_line3.png"
-car_file = "maps/blue_car.png"
-user_car_file = "maps/car.png"
-log_file = "car_position.txt"
-map_name = map_file.split("/")[-1].split(".")[0]
-save_file = "saved/" + map_name + ".pkl"
-dimensions = [1000, 500]
+map_name  = "map2"
+
+# Keyboard inputs:
+# ESC - stop the population
+# O - speedup on/off
+# P - display on/off>   (use this for fast generating)
+
+directory = "maps/" + map_name + "/"
+map_file      = directory + "map.png"
+
+ai_car_file   = "cars/blue_car.png"
+user_car_file = "cars/red_car.png"
 
 game = None
 
-# Keyboard inputs:                   O - speedup on/off
-# (use this for fast generating) ->  P - display on/off
-
 def init_game():
     global game
-    game = Game(dimensions, map_file, car_file)
+    game = Game([1000, 500], map_file, ai_car_file)
     # return
     user_car_sprite = pygame.image.load(user_car_file).convert()
-    car = AICar(game, True, user_car_sprite, [100, 50], [1220, 820])
-    game.add_user_car(car)
+    user_car = Car(game, True, user_car_sprite, size = [100, 50], start_position = [1220, 820])
+    game.add_user_car(user_car)
 
-def run_simulation(genomes, config):
 
+def init_simulation(genomes, config):
     global game
     game.cars.clear()
-
-    # Empty Collections For Nets and Cars
-    nets = []
 
     # For All Genomes Passed Create A New Neural Network
     i = 0
     for _, g in genomes:
+        car = AICar(game, game.must_update_depending_on_idx(i), game.car_sprite)
         net = neat.nn.FeedForwardNetwork.create(g, config)
-        nets.append(net)
-        car = AICar(game, game.must_update_depending_on_idx(i), game.car_sprite, [100, 50], [1220, 820])
+        car.set_net(net)
         game.add_car(car)
         i += 1
 
-    for _ in range (0, 2000):
+global best_car
 
-        # For Each Car Get The Acton It Takes
-        still_alive = 0
-        for i, car in enumerate(game.cars):
-            if car.is_alive():
-                output = nets[i].activate(car.get_data())
-                choice = output.index(max(output))
-                car.update_position(choice + 1)
-                car.update()
-                still_alive += 1
-            else:
-                car.stop_drawing()
+def run_simulation(genomes, config):
+    init_simulation(genomes, config)
 
-        if still_alive == 0:
+    for _ in range (0, 500):
+        if game.update() == False:
             break
 
-        game.update()
-
-    if game.user_car is not None:
-        game.user_car.reset_user()
+    # Keep only best N cars for display
+    N = 3
     vals = []
     for i, car in enumerate(game.cars):
         reward = car.get_reward()
@@ -69,48 +58,79 @@ def run_simulation(genomes, config):
         vals.append((i, reward))
 
     vals.sort(key=lambda x: x[1], reverse=True)
-    game.set_display_idx([val[0] for val in vals[:5]])
+    vals = [val[0] for val in vals]
 
-def main():
+    global best_car
+    best_car = game.cars[vals[0]].net
+    game.set_display_idx(vals[:3])
+
+
+def new_population():
     config_path = "model/config.txt"
-    config = neat.config.Config(neat.DefaultGenome,
-                                    neat.DefaultReproduction,
-                                    neat.DefaultSpeciesSet,
-                                    neat.DefaultStagnation,
-                                    config_path)
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+        neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
+    population = neat.Population(config)
+    population.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    population.add_reporter(stats)
+    return population
 
-    LOAD_FROM_PICKLE = True
-    if LOAD_FROM_PICKLE:
+
+def init_population():
+    LOAD_FROM_FILE = True
+    load_population_file = directory + "population.pkl"
+
+    if LOAD_FROM_FILE:
         try:
-            with open(save_file, "rb") as f:
+            with open(load_population_file, "rb") as f:
                 population = pickle.load(f)
         except FileNotFoundError:
-            print(f"{save_file} not found. Creating new population.")
-            population = neat.Population(config)
-            population.add_reporter(neat.StdOutReporter(True))
-            stats = neat.StatisticsReporter()
-            population.add_reporter(stats)
-
+            print(f"{load_population_file} not found. Creating new population.")
+            population = new_population()
     else:
-        # Create Population And Add Reporters
-        population = neat.Population(config)
-        population.add_reporter(neat.StdOutReporter(True))
-        stats = neat.StatisticsReporter()
-        population.add_reporter(stats)
+        population = new_population()
+    return population
 
-       
+
+def save_best_car(generation = -1):
+    global best_car
+
+    if generation == -1:
+        file = directory + "best_car.pkl"
+    else:
+        file = directory + "best_car_" + str(generation) + ".pkl"        
+    with open(file, 'wb') as f:
+        pickle.dump(best_car, f)
+
+
+def save_population(population):
+    SAVE_TO_FILE = True
+    save_population_file = directory + "population.pkl"
+
+    if SAVE_TO_FILE:
+        with open(save_population_file, 'wb') as f:
+            pickle.dump(population, f)
+    
+    save_best_car()
+
+def main():
+    population = init_population()
     init_game()
+
+    # Run Simulation For A Maximum of 250 Generations
     try:
-        # Run Simulation For A Maximum of 250 Generations
-        population.run(run_simulation, 250)
+        for _ in range(250):
+            population.run(run_simulation, 1)
+            g = population.generation
+            if g > 0 and g % 50 == 0:
+                save_best_car(g)
     except KeyboardInterrupt:
         print("Simulation interrupted by user.")
     except SystemExit:
-       with open(save_file, 'wb') as f:
-            pickle.dump(population, f)
+       print("Simulation stopped by user.")
+       save_population(population)
     finally:
-        with open(save_file, 'wb') as f:
-            pickle.dump(population, f)
+        save_population(population)
 
 
 if __name__ == "__main__":

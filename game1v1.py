@@ -1,7 +1,7 @@
 import sys
 import pygame
 from model.ai_car import *
-from usercar import *
+# from usercar import *
 
 #TODO: Implement the Game class for the main game (ai vs user)
 
