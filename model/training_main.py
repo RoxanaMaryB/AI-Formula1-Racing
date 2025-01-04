@@ -3,7 +3,7 @@ import pickle
 from model.ai_car import *
 from model.game import *
 
-map_name  = "map2"
+map_name  = "finish_line1"
 
 # Keyboard inputs:
 # ESC - stop the population
@@ -45,7 +45,7 @@ global best_car
 def run_simulation(genomes, config):
     init_simulation(genomes, config)
 
-    for _ in range (0, 500):
+    for _ in range (0, 2000):
         if game.update() == False:
             break
 
@@ -117,9 +117,9 @@ def main():
     population = init_population()
     init_game()
 
-    # Run Simulation For A Maximum of 250 Generations
+    # Run Simulation For A Maximum of 500 Generations
     try:
-        for _ in range(250):
+        for _ in range(500):
             population.run(run_simulation, 1)
             g = population.generation
             if g > 0 and g % 50 == 0:

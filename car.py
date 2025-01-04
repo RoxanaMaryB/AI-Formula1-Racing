@@ -103,6 +103,7 @@ class Car:
         self.check_collision()
 
         if self.check_green_color():
+            self.alive = False
             self.won = True
 
     def update_position_from_choice(self, choice):

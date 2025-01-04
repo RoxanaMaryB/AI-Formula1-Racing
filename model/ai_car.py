@@ -2,7 +2,7 @@ from model.game import *
 from car import *
 
 MIN_SPEED = 20
-MAX_SPEED = 60
+MAX_SPEED = 90
 
 class AICar(Car):
     def __init__(self, game, must_draw=False, sprite=None, size = [100, 50], start_position = [1200, 820]):

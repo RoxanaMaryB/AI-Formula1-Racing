@@ -83,8 +83,9 @@ class Game:
                 car.stop_drawing()
 
         if self.user_car is not None:
-            if self.user_car.is_alive():
-                self.user_car.update()
+            self.user_car.update()
+            if self.user_car.check_collision() or self.user_car.check_green_color():
+                self.user_car.reset()
         
         self.draw()
         return still_alive > 0
