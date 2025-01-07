@@ -38,7 +38,7 @@ AI model is better trained.
 - To train the simulation run `python3 -m model.training_main`
 - To play against an AI trained car run `python3 -m main`
 
-* for user car use the following keyboard inputs to control the user car:
+* User car is controlled by keyboard inputs:
     - `W` - Speed up
     - `A` - Turn left
     - `D` - Turn right
