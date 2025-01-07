@@ -81,10 +81,9 @@ updating the display and handling events.
 update the positions of each car.
 
 ### Roxana
-- Designed and implemented the `AICar` class to define the behavior of AI-controlled
-- Added model simulation logic in folder model. main.py uses ai_car and usercar to the main game
-- Worked on the car ranking and performance evaluation system.
-- Took best ai genome and added it to the main game and added debug statements
+- Developed model simulation logic in the `AICar` class to define the behavior for AI-driven cars in training and in the game against the user
+- Built a performance evaluation system to assess and select the best performing AI model
+- Integrated the best performing AI genome and the user controlled car into the main game, enabling competition
 
 ### Marius
 - Implemented user car controls using keyboard inputs.
