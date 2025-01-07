@@ -35,6 +35,9 @@ AI model is better trained.
 - NEAT-Python
 
 #### Usage instructions
+To train the simulation run `python3 -m model.training_main`
+To play against an AI trained car run `python3 -m main`
+
 * for user car use the following keyboard inputs to control the user car:
     - `W` - Speed up
     - `A` - Turn left
