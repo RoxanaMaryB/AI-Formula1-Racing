@@ -85,6 +85,7 @@ class Game:
         if self.user_car is not None:
             self.user_car.update()
             if self.user_car.check_collision() or self.user_car.check_green_color():
+                self.user_car.alive = False
                 self.user_car.reset()
         
         self.draw()
@@ -129,6 +130,7 @@ class Game:
 
         if self.user_car.check_green_color():
             print("User car got to the finish line")
+            self.user_car.won = True
             self.user_car.reset()
 
 

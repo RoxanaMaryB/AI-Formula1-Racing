@@ -5,7 +5,7 @@ import pickle
 import neat
 import pygame
 
-map_name  = "finish_line2"
+map_name  = "finish_line3"
 
 directory = "maps/" + map_name + "/"
 map_file      = directory + "map.png"
@@ -39,15 +39,7 @@ def run_simulation(best_car, config):
     running = True
     while running:
         game.update()
-        if not game.user_car.is_alive():
-            print("User car is out of bounds")
-            winner = "AI Car Wins!"
-            running = False
-        elif not ai_car.is_alive():
-            print("AI car is out of bounds")
-            winner = "User Car Wins!"
-            running = False
-        elif game.user_car.has_won():
+        if game.user_car.has_won():
             print("User car has crossed the finish line")
             winner = "User Car Wins!"
             running = False
@@ -55,6 +47,15 @@ def run_simulation(best_car, config):
             print("AI car has crossed the finish line")
             winner = "AI Car Wins!"
             running = False
+        elif not game.user_car.is_alive():
+            print("User car is out of bounds")
+            winner = "AI Car Wins!"
+            running = False
+        elif not ai_car.is_alive():
+            print("AI car is out of bounds")
+            winner = "User Car Wins!"
+            running = False
+        
 
 
     pygame.display.update()
