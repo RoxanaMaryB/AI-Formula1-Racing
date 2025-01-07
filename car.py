@@ -16,6 +16,7 @@ class Car:
         self.must_draw = must_draw
         self.start_position = start_position
         self.size = size
+        self.won = False
         self.start_position = start_position
         self.min_speed = 0
         self.max_speed = 500 # Big number
@@ -122,6 +123,9 @@ class Car:
 
     def get_choice(self):
         return 0
+    
+    def has_won(self):
+        return self.won
 
     def check_green_color(self):
         # return False

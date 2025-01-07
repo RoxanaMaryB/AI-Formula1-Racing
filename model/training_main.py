@@ -3,7 +3,7 @@ import pickle
 from model.ai_car import *
 from model.game import *
 
-map_name  = "finish_line1"
+map_name  = "finish_line2"
 
 # Keyboard inputs:
 # ESC - stop the population
@@ -92,9 +92,7 @@ def init_population():
     return population
 
 
-def save_best_car(generation = -1):
-    global best_car
-
+def save_best_car(best_car, generation = -1):
     if generation == -1:
         file = directory + "best_car.pkl"
     else:
@@ -110,8 +108,6 @@ def save_population(population):
     if SAVE_TO_FILE:
         with open(save_population_file, 'wb') as f:
             pickle.dump(population, f)
-    
-    save_best_car()
 
 def main():
     population = init_population()
@@ -120,10 +116,10 @@ def main():
     # Run Simulation For A Maximum of 500 Generations
     try:
         for _ in range(500):
-            population.run(run_simulation, 1)
+            best_car = population.run(run_simulation, 1)
             g = population.generation
             if g > 0 and g % 50 == 0:
-                save_best_car(g)
+                save_best_car(best_car, g)
     except KeyboardInterrupt:
         print("Simulation interrupted by user.")
     except SystemExit:
