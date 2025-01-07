@@ -3,7 +3,7 @@ import pickle
 from model.ai_car import *
 from model.game import *
 
-map_name  = "finish_line2"
+map_name  = "map3"
 
 # Keyboard inputs:
 # ESC - stop the population
@@ -21,7 +21,7 @@ game = None
 def init_game():
     global game
     game = Game([1000, 500], map_file, ai_car_file)
-    # return
+    return
     user_car_sprite = pygame.image.load(user_car_file).convert()
     user_car = Car(game, True, user_car_sprite, size = [100, 50], start_position = [1220, 820])
     game.add_user_car(user_car)
