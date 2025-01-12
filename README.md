@@ -27,16 +27,16 @@ AI model is better trained.
 * https://github.com/pofian/AI-Formula1-Racing
 * https://youtu.be/y-U3_HziniQ
 
+## Usage instructions
+- To train the simulation run `python3 -m model.training_main`
+- To play against an AI trained car run `python3 -m main`
+
 ## Implementation
 #### Languages/Technologies Used
 
 - Python
 - Pygame
 - NEAT-Python
-
-#### Usage instructions
-- To train the simulation run `python3 -m model.training_main`
-- To play against an AI trained car run `python3 -m main`
 
 * User car is controlled by keyboard inputs:
     - `W` - Speed up
