@@ -31,6 +31,19 @@ AI model is better trained.
 - To train the simulation run `python3 -m model.training_main`
 - To play against an AI trained car run `python3 -m main`
 
+## Evaluation
+
+The `evaluation` folder measures how reliably the trained cars finish a lap.
+Each model saved for the three tracks with a finish line drives 100 runs with
+a randomly shifted start position and heading, and with noise on its radar
+readings. The AI car used in the game finished 99 of the 100 runs, and 97 of
+100 with twice the variation.
+
+The folder also contains an experiment comparing the original fitness function
+with one that rewards reaching the finish line, across 3 training seeds. See
+[evaluation/README.md](evaluation/README.md) for the method, results and
+commands.
+
 ## Implementation
 #### Languages/Technologies Used
 
@@ -87,6 +100,7 @@ update the positions of each car.
 - Developed model simulation logic in the `AICar` class to define the behavior for AI-driven cars in training and in the game against the user
 - Built a performance evaluation system to assess and select the best performing AI model
 - Integrated the best performing AI genome and the user controlled car into the main game, enabling competition
+- Added the evaluation of the trained cars and the fitness function experiment in `evaluation/`
 
 ### Marius
 - Implemented user car controls using keyboard inputs.
@@ -114,4 +128,5 @@ including updating the display and handling events.
 - `saved`: Directory to save and load the NEAT population.
 - `main` : Contains the code for our game, user car vs best Ai car generated.
 - `config.txt`: Configuration file for NEAT parameters.
+- `evaluation`: Evaluation of the trained cars and the fitness function experiment, see `evaluation/README.md`.
 

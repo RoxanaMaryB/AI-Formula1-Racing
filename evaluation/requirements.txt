@@ -1,0 +1,5 @@
+pygame>=2.5
+# The saved models load with neat-python 0.92. Newer releases (1.0.0 and
+# 2.0.0 checked) reject model/config.txt.
+neat-python==0.92
+numpy
